@@ -40,6 +40,7 @@
     <form class="flex flex-col justify-center align-center gap-2">
         <input class="mt-2 p-2 file:bg-black file:text-white border border-black" type="file" name="annotated" id="input_files" onchange="readThis(this)" multiple />
         <button type="button" onclick="readThis(this)" class="bg-black text-white p-1">Read</button>
+        <button type="button" onclick="readFromStorage(this)" class="bg-black text-white p-1">Fetch Annotated</button>
     </form>
     <hr class="my-1 bg-black h-1"/>
     <p>Label Info: </p>
@@ -63,26 +64,66 @@
         let find_list = []
         let annotated = [];
         let output = "";
+
         function printOutput(e) {
             alert(output);
         }
-        async function findSelected(e) {
-            // const fList = ["+table+", "bookks", "books'", "ceiling'", "rock\\", "table'", "fire place\\"]
-            readThis(this, true);
 
+        async function findSelected(e) {
+            annotated.length > 0 ? readFromStorage(true) : readThis(this, true);
+        }
+
+        function updateLabelsDisplay(labels) {
+            [...select_labels.children].forEach(opt => select_labels.removeChild(opt)) 
+              labels = labels.flat().sort();
+                let labelsLength = labels.length;
+                let uniqueLabels = [...new Set(labels)];
+                console.log("L29", { labelsLength, uniqueLabels })
+                // total_labels.textContent = JSON.stringify({uniqueLabels, labelsLength}, null, 4);
+                uniqueLabels.forEach(label => {
+                    var option = document.createElement("option");
+                    option.text = label;
+                    select_labels.add(option);
+                    select_labels.size = "30"
+                })
+   
+        }
+
+        function readFromStorage(find=false) {
+            try {
+                let fList = [...select_labels.selectedOptions].map(item => item.textContent)
+                let labels = [];
+                let foundTarget = [];
+                annotated.forEach((anno, index) => {
+                    let tmp = anno.shapes.map(shape => shape.label);
+                    labels.push(tmp);
+                    fList.forEach(ele => {
+                            if (tmp.find(item => item == ele)) {
+                            let obj = {ele, file: anno.imagePath};
+                            foundTarget.push(obj);
+                            console.log(obj)
+                            output += JSON.stringify(obj, null, 4);
+                            console.log({output})
+                        }
+                 
+                    })
+                })
+                updateLabelsDisplay(labels);
+            } catch (err) {
+                console.log({err});
+            }
+           
         }
 
 
         async function replaceAll(e) {
             // const fList = ["+table+", "bookks", "books'", "ceiling'", "rock\\", "table'", "fire place\\"]
 
-            let new_value = prompt("New Value for selected?")
-            let old_values_list = [...select_labels].map(option => option.textContent);
-            const tmp = annotated.map(json_file => {
+            let old_values_list = [...select_labels.selectedOptions].map(option => option.textContent);
+            let new_value = prompt(`New Value for selected? ${JSON.stringify(old_values_list)}`)
+            annotated = annotated.map(json_file => {
                 return replaceShape(json_file, old_values_list, new_value);
             })
-            console.log(tmp);
-
         }
 
         function replaceShape(json_file, old_labels, new_label) {
@@ -129,20 +170,8 @@
                 };
             }
             setTimeout(() => {
-                labels = labels.flat().sort();
-                let labelsLength = labels.length;
-                let uniqueLabels = [...new Set(labels)];
-                console.log("L29", { labelsLength, uniqueLabels })
-                // total_labels.textContent = JSON.stringify({uniqueLabels, labelsLength}, null, 4);
-                uniqueLabels.forEach(label => {
-                    var option = document.createElement("option");
-                    option.text = label;
-                    select_labels.add(option);
-                    select_labels.size = "30"
-                })
-                
-
-           }, 500);
+                updateLabelsDisplay(labels);
+            }, 1000);
 
 
         }
