@@ -43,18 +43,48 @@
     </form>
     <hr class="my-1 bg-black h-1"/>
     <p>Label Info: </p>
+    <form>
+        <select id="select-labels" class="border  border-solid border-black border-2 w-full h-full" multiple>
+            <option>None</option>
+        </select>
+        <button class="bg-black text-white p-1" type="button" onclick="replaceAll(this)">Replace All</button>
+        <button class="bg-black text-white p-1" type="button" onclick="findSelected(this)">Find All</button>
+        <pre>
+            <span id="found_selected"></span>
+        </pre>
+    </form>
     <pre><span id="total_labels">Result show once readed</span></pre>
     <script>
         let inputFiles = document.querySelector("#input_files");
         let total_labels = document.querySelector("#total_labels");
-        async function readThis(e) {
+        let select_labels = document.querySelector("#select-labels");
+        let found_selected = document.querySelector("#found_selected");
+        let find_list = []
+        let annotated = [];
+        async function findSelected(e) {
+            // const fList = ["+table+", "bookks", "books'", "ceiling'", "rock\\", "table'", "fire place\\"]
+            let new_value = prompt("New Value for selected?")
+            readThis(this, true);
+
+        }
+
+
+        async function replaceAll(e) {
+            // const fList = ["+table+", "bookks", "books'", "ceiling'", "rock\\", "table'", "fire place\\"]
+            let new_value = prompt("New Value for selected?")
+            readThis(this, true);
+
+        }
+
+        async function readThis(e, findSelected=false) {
             let labels = [];
+            let foundTarget = [];
             for (let index = 0; index < inputFiles.files.length; index++) {
                 let reader = new FileReader();
                 let file = inputFiles.files[index];
                 reader.readAsText(file);
                 reader.onload = function () {
-                    const fList = ["+table+", "bookks", "books'", "ceiling'", "rock\\", "table'", "fire place\\"]
+                    let fList = [...select_labels.selectedOptions].map(item => item.textContent)
                     let result = "";
                     new Promise(resolve => {
                         result = reader.result;
@@ -66,6 +96,7 @@
                     let tmp = pResult.shapes.map(i => i.label);
                     fList.forEach(ele => {
                         if (tmp.find(item => item == ele)) {
+                            foundTarget.push({ele, name: file.name});
                             console.log({ele, name: file.name})
                         }
                     })
@@ -81,8 +112,18 @@
                 let labelsLength = labels.length;
                 let uniqueLabels = [...new Set(labels)];
                 console.log("L29", { labelsLength, uniqueLabels })
-                total_labels.textContent = JSON.stringify({uniqueLabels, labelsLength}, null, 4);
-            }, 500);
+                // total_labels.textContent = JSON.stringify({uniqueLabels, labelsLength}, null, 4);
+                uniqueLabels.forEach(label => {
+                    var option = document.createElement("option");
+                    option.text = label;
+                    select_labels.add(option);
+                    select_labels.size = "30"
+                })
+                if (findSelected) {
+                    return foundTarget;
+                }
+
+           }, 500);
 
 
         }
