@@ -75,9 +75,23 @@
 
         async function replaceAll(e) {
             // const fList = ["+table+", "bookks", "books'", "ceiling'", "rock\\", "table'", "fire place\\"]
-            let new_value = prompt("New Value for selected?")
-            readThis(this, true);
 
+            let new_value = prompt("New Value for selected?")
+            let old_values_list = [...select_labels].map(option => option.textContent);
+            const tmp = annotated.map(json_file => {
+                return replaceShape(json_file, old_values_list, new_value);
+            })
+            console.log(tmp);
+
+        }
+
+        function replaceShape(json_file, old_labels, new_label) {
+            json_file.shapes.forEach(shape => {
+                if (old_labels.find(label => label == shape.label)) {
+                    shape.label = new_label;
+                }
+            })
+            return json_file;
         }
 
         async function readThis(e, findSelected=false) {
@@ -97,6 +111,7 @@
                         }
                     })
                     let pResult = JSON.parse(result);
+                    annotated.push(pResult);
                     let tmp = pResult.shapes.map(i => i.label);
                     fList.forEach(ele => {
                         if (tmp.find(item => item == ele)) {
