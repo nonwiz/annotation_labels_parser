@@ -4,22 +4,43 @@
 <head>
     <title>Shape Parser</title>
     <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://cdn.tailwindcss.com"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        html {
+            max-width: 70ch;
+            padding: 3em 1em;
+            margin: auto;
+            line-height: 1.75;
+            font-size: 1.25em;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            margin: 3em 0 1em;
+        }
+
+        p,
+        ul,
+        ol {
+            margin-bottom: 2em;
+            color: #1d1d1d;
+            font-family: sans-serif;
+        }
+    </style>
 </head>
 
-<body>
-    <form>
-        <input type="file" name="annotated" id="input_files" onchange="readThis(this)" multiple />
-        <div
-        class="bg-red-400"
-  ondrop="dropHandler(event);"
-  ondragover="dragOverHandler(event);">
-        >
-            Put it here
-        </div>
+<body class="mx-auto">
+    <h1 class="text-xl mb-2">Annotated Shape Parser</h1>
+    <p>Select the annotated json files</p>
+    <form class="flex flex-col justify-center align-center gap-2">
+        <input class="mt-2 p-2 file:bg-black file:text-white border border-black" type="file" name="annotated" id="input_files" onchange="readThis(this)" multiple />
+        <button type="button" onclick="readThis(this)" class="bg-black text-white m-1">Read</button>
     </form>
-    <button onclick="readThis(this)">Read</button>
     <script>
         let inputFiles = document.querySelector("#input_files");
         function readThis(e) {
@@ -51,40 +72,6 @@
         }
 
 
-
-
-
-
-        function dropHandler(ev) {
-            console.log('File(s) dropped');
-
-            // Prevent default behavior (Prevent file from being opened)
-            ev.preventDefault();
-
-            if (ev.dataTransfer.items) {
-                // Use DataTransferItemList interface to access the file(s)
-                [...ev.dataTransfer.items].forEach((item, i) => {
-                    // If dropped items aren't files, reject them
-                    if (item.kind === 'file') {
-                        const file = item.getAsFile();
-                        console.log(`… file[${i}].name = ${file.name}`);
-                    }
-                });
-            } else {
-                // Use DataTransfer interface to access the file(s)
-                inputFiles.files = ev.dataTransfer.files;
-                [...ev.dataTransfer.files].forEach((file, i) => {
-                    console.log(`… file[${i}].name = ${file.name}`);
-                });
-            }
-        }
-
-        function dragOverHandler(ev) {
-            console.log('File(s) in drop zone');
-
-            // Prevent default behavior (Prevent file from being opened)
-            ev.preventDefault();
-        }
 
 
     </script>
