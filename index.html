@@ -39,22 +39,37 @@
     <p>Select the annotated json files</p>
     <form class="flex flex-col justify-center align-center gap-2">
         <input class="mt-2 p-2 file:bg-black file:text-white border border-black" type="file" name="annotated" id="input_files" onchange="readThis(this)" multiple />
-        <button type="button" onclick="readThis(this)" class="bg-black text-white m-1">Read</button>
+        <button type="button" onclick="readThis(this)" class="bg-black text-white p-1">Read</button>
     </form>
+    <hr class="my-1 bg-black h-1"/>
+    <p>Label Info: </p>
+    <pre><span id="total_labels">Result show once readed</span></pre>
     <script>
         let inputFiles = document.querySelector("#input_files");
-        function readThis(e) {
+        let total_labels = document.querySelector("#total_labels");
+        async function readThis(e) {
             let labels = [];
             for (let index = 0; index < inputFiles.files.length; index++) {
                 let reader = new FileReader();
                 let file = inputFiles.files[index];
                 reader.readAsText(file);
                 reader.onload = function () {
-                    let result = reader.result;
+                    const fList = ["+table+", "bookks", "books'", "ceiling'", "rock\\", "table'", "fire place\\"]
+                    let result = "";
+                    new Promise(resolve => {
+                        result = reader.result;
+                        if (result.length > 0) {
+                            resolve();
+                        }
+                    })
                     let pResult = JSON.parse(result);
                     let tmp = pResult.shapes.map(i => i.label);
+                    fList.forEach(ele => {
+                        if (tmp.find(item => item == ele)) {
+                            console.log({ele, name: file.name})
+                        }
+                    })
                     labels.push(tmp);
-                    console.log({ labels });
                 };
 
                 reader.onerror = function () {
@@ -62,15 +77,15 @@
                 };
             }
             setTimeout(() => {
-                labels = labels.flat();
+                labels = labels.flat().sort();
                 let labelsLength = labels.length;
                 let uniqueLabels = [...new Set(labels)];
                 console.log("L29", { labelsLength, uniqueLabels })
-            }, 2000);
+                total_labels.textContent = JSON.stringify({uniqueLabels, labelsLength}, null, 4);
+            }, 500);
 
 
         }
-
 
 
 
