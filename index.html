@@ -25,7 +25,7 @@
         <select id="select-labels" class="border  border-solid border-black border-2 w-full h-full" multiple>
             <option>None</option>
         </select>
-        <button class="bg-black text-white p-1" type="button" onclick="replaceAll(this)">Replace All</button>
+        <button class="bg-black text-white p-1" type="button" onclick="replaceSelected(this)">Replace All</button>
         <button class="bg-black text-white p-1" type="button" onclick="findSelected(this)">Find All</button>
         <button class="bg-black text-white p-1" type="button" onclick="printOutput(this)">Print Output</button>
         <button class="bg-black text-white p-1" type="button" onclick="saveUniqueLabels()">Save labels</button>
@@ -110,9 +110,16 @@ function readFromStorage(find = false) {
 
 }
 
+async function removeSelected() {
 
-async function replaceAll(e) {
-    // const fList = ["+table+", "bookks", "books'", "ceiling'", "rock\\", "table'", "fire place\\"]
+    let remove_list = [...select_labels.selectedOptions].map(option => option.textContent);
+    annotated = annotated.map(json_file => {
+        json_file.shapes = json_file.shapes.filter(shape => remove_list.find(label => label == shape.label) ? false : true)
+        return json_file;
+    })
+}
+
+async function replaceSelected(e) {
 
     let old_values_list = [...select_labels.selectedOptions].map(option => option.textContent);
     let new_value = prompt(`New Value for selected? ${JSON.stringify(old_values_list)}`)
