@@ -6,6 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="./fs.js"></script>
     <link rel="stylesheet" href="style.css">
 
 </head>
@@ -33,7 +34,7 @@
         </pre>
     </form>
     <pre><span id="total_labels">Result show once readed</span></pre>
-    <script src="fileSaver.js"></script>
+    <!-- <script src="fileSaver.js"></script> -->
     <script>
 let inputFiles = document.querySelector("#input_files");
 let total_labels = document.querySelector("#total_labels");
@@ -47,7 +48,7 @@ let labels = [];
 function saveUniqueLabels() {
     const tmp = [...select_labels.children].map(opt => opt.textContent);
     var blob = new Blob([tmp.join("\n")], { type: "text/plain;charset=utf-8" });
-    fileSaver.saveAs(blob, "labels.txt");
+    saveAs(blob, "labels.txt");
  
 }
 
