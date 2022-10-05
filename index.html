@@ -28,6 +28,7 @@
         <div class="flex flex-row flex-wrap gap-2">
         <button class="bg-black text-white p-1" type="button" onclick="removeSelected()">Remove Selected</button>
         <button class="bg-black text-white p-1" type="button" onclick="saveSelected()">Save Selected</button>
+        <button class="bg-black text-white p-1" type="button" onclick="saveStaticSelected()">Save Static Selected</button>
         <button class="bg-black text-white p-1" type="button" onclick="replaceSelected(this)">Replace Selected</button>
         <button class="bg-black text-white p-1" type="button" onclick="findSelected(this)">Find All</button>
         <button class="bg-black text-white p-1" type="button" onclick="printOutput(this)">Print Output</button>
@@ -50,11 +51,12 @@ let find_list = []
 let annotated = [];
 let output = "";
 let labels = [];
+let suffix = "";
 
 function saveUniqueLabels() {
     const tmp = [...select_labels.children].map(opt => opt.textContent);
-    tmp.unshift(_background_);
-    tmp.unshift(__ignore__);
+    tmp.unshift("_background_");
+    tmp.unshift("__ignore__");
     let blob = new Blob([tmp.join("\n")], { type: "text/plain;charset=utf-8" });
     saveAs(blob, "labels.txt");
 }
@@ -64,12 +66,12 @@ function saveAnnotation(annotation=null) {
     if (annotation) {
         tmp = annotation
     } else {
-        tmp = annotaed
+        tmp = annotated
     }
     tmp.forEach((annote, index) => {
         let blob = new Blob([JSON.stringify(annote, null, 1)], { type: "application/json;charset=utf-8" });
         let fPath = annote.imagePath.split("\\");
-        let fName = fPath[fPath.length - 1].split(".")[0] + ".json";
+        let fName = fPath[fPath.length - 1].split(".")[0] + suffix + ".json";
         saveAs(blob, fName);
     })
 
@@ -125,6 +127,21 @@ function readFromStorage(find = false) {
 
 }
 
+async function saveStaticSelected() {
+    let selected_list = [...select_labels.selectedOptions].map(option => option.textContent);
+    let tmp = annotated.filter(annote => {
+        const labels = annote.shapes.map(i => i.label);
+        return selected_list.every(ele => labels.includes(ele));
+    })
+    tmp = tmp.map(json_file => {
+        json_file.shapes = json_file.shapes.filter(shape => selected_list.find(label => label == shape.label) ? true : false);
+        return json_file;
+    })
+    console.log({tmp});
+   saveAnnotation(tmp);
+}
+
+
 async function saveSelected() {
 
     let selected_list = [...select_labels.selectedOptions].map(option => option.textContent);
@@ -167,6 +184,7 @@ function replaceShape(json_file, old_labels, new_label) {
 
 async function readThis(e, findSelected = false) {
     let foundTarget = [];
+    annotated = [];
     for (let index = 0; index < inputFiles.files.length; index++) {
         let reader = new FileReader();
         let file = inputFiles.files[index];
