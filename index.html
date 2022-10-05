@@ -25,10 +25,14 @@
         <select id="select-labels" class="border  border-solid border-black border-2 w-full h-full" multiple>
             <option>None</option>
         </select>
-        <button class="bg-black text-white p-1" type="button" onclick="replaceSelected(this)">Replace All</button>
+        <button class="bg-black text-white p-1" type="button" onclick="removeSelected()">Remove Selected</button>
+        <button class="bg-black text-white p-1" type="button" onclick="replaceSelected(this)">Replace Selected</button>
         <button class="bg-black text-white p-1" type="button" onclick="findSelected(this)">Find All</button>
+
+        <br class="m-2">
         <button class="bg-black text-white p-1" type="button" onclick="printOutput(this)">Print Output</button>
         <button class="bg-black text-white p-1" type="button" onclick="saveUniqueLabels()">Save labels</button>
+        <button class="bg-black text-white p-1" type="button" onclick="saveAnnotation()">Save Annotation</button>
         <pre>
             <span id="found_selected"></span>
         </pre>
@@ -97,7 +101,7 @@ function readFromStorage(find = false) {
                     let obj = { ele, file: anno.imagePath };
                     foundTarget.push(obj);
                     console.log(obj)
-                    output += JSON.stringify(obj, null, 4);
+                    output += JSON.stringify(obj);
                     console.log({ output })
                 }
 
@@ -117,6 +121,7 @@ async function removeSelected() {
         json_file.shapes = json_file.shapes.filter(shape => remove_list.find(label => label == shape.label) ? false : true)
         return json_file;
     })
+    readFromStorage(null);
 }
 
 async function replaceSelected(e) {
@@ -126,6 +131,7 @@ async function replaceSelected(e) {
     annotated = annotated.map(json_file => {
         return replaceShape(json_file, old_values_list, new_value);
     })
+    readFromStorage(null);
 }
 
 function replaceShape(json_file, old_labels, new_label) {
