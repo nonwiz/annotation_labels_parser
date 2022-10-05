@@ -53,6 +53,8 @@ let labels = [];
 
 function saveUniqueLabels() {
     const tmp = [...select_labels.children].map(opt => opt.textContent);
+    tmp.unshift(_background_);
+    tmp.unshift(__ignore__);
     let blob = new Blob([tmp.join("\n")], { type: "text/plain;charset=utf-8" });
     saveAs(blob, "labels.txt");
 }
