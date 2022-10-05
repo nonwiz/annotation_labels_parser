@@ -26,6 +26,7 @@
             <option>None</option>
         </select>
         <button class="bg-black text-white p-1" type="button" onclick="removeSelected()">Remove Selected</button>
+        <button class="bg-black text-white p-1" type="button" onclick="saveSelected()">Save Selected</button>
         <button class="bg-black text-white p-1" type="button" onclick="replaceSelected(this)">Replace Selected</button>
         <button class="bg-black text-white p-1" type="button" onclick="findSelected(this)">Find All</button>
 
@@ -55,8 +56,14 @@ function saveUniqueLabels() {
     saveAs(blob, "labels.txt");
 }
 
-function saveAnnotation() {
-    annotated.forEach((annote, index) => {
+function saveAnnotation(annotation=null) {
+    let tmp;
+    if (annotation) {
+        tmp = annotation
+    } else {
+        tmp = annotaed
+    }
+    tmp.forEach((annote, index) => {
         let blob = new Blob([JSON.stringify(annote, null, 1)], { type: "application/json;charset=utf-8" });
         let fName = annote.imagePath.split("\\")[1].split(".")[0] + ".json";
         saveAs(blob, fName);
@@ -113,6 +120,17 @@ function readFromStorage(find = false) {
     }
 
 }
+
+async function saveSelected() {
+
+    let selected_list = [...select_labels.selectedOptions].map(option => option.textContent);
+    const tmp = annotated.map(json_file => {
+        json_file.shapes = json_file.shapes.filter(shape => selected_list.find(label => label == shape.label) ? true : false);
+        return json_file;
+    })
+    saveAnnotation(tmp);
+}
+
 
 async function removeSelected() {
 
